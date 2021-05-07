@@ -1,0 +1,101 @@
+#include "DHT.h"
+#define DHTPIN 4      
+#define DHTTYPE DHT11    
+DHT dht(DHTPIN, DHTTYPE);
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+void setup() {
+  Serial.begin(9600);
+  Serial.println(F("DHTxx test!"));
+   dht.begin();
+     Serial.begin(115200);
+delay(2000);
+Serial.println("oled test");
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { 
+    Serial.println("SSD1306 allocation failed");
+    for(;;);}
+      delay(2000);
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 10);
+  // Display static text
+  display.println();
+  display.display(); 
+   pinMode(2,OUTPUT);
+   pinMode(13,OUTPUT);
+   Serial.begin(9600);
+}
+
+void loop() {
+   
+  delay(2000);
+  float h = dht.readHumidity();
+   
+  float t = dht.readTemperature();
+ 
+  float f = dht.readTemperature(true);
+
+ 
+  if (isnan(h) || isnan(t) || isnan(f)) {
+    Serial.println(F("Failed to read from DHT sensor!"));
+    return;
+  }
+ 
+  float hif = dht.computeHeatIndex(f, h);
+ 
+  float hic = dht.computeHeatIndex(t, h, false);
+
+
+
+  // fetching ldr value
+  int a= analogRead(15);
+ 
+  delay(2000);
+   delay(2000);
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 10);
+  // Display static text
+  
+    display.print(F("Humidity: "));
+  display.print(h);
+    display.print(F("%  Temperature: "));
+  display.print(t);
+  display.print(F("°C "));
+  display.print(f);
+  display.print(F("°F  Heat index: "));
+  display.print(hic);
+ display.print(F("°C "));
+display.print(hif);
+  display.println(F("°F"));
+  display.println("the ldr value is");
+ display.println(a);
+ //the leds are working automatically depending up on the intensity of ldr.
+  //the values of the ldr is 0 to 4000 
+  //working inversly if value of ldr is less the light intensity is more.
+  if(a<=2000){
+digitalWrite(2,HIGH);
+    display.println("led is on");
+}
+else{
+   digitalWrite(2,LOW);
+   display.println("led is Off");
+} 
+//controling the fan by the given temperature if the temperature exeeds 30degree .
+if(f>30){
+  digitalWrite(13,HIGH);
+  display.println("fan is on");
+  
+}
+else{
+  digitalWrite(13,LOW);
+  display.println("fan is Off");
+}
+}
